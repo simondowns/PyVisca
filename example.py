@@ -26,58 +26,68 @@
 #
 
 def main():
-
 	from pyviscalib.visca import Visca
 	from  time import sleep
 
 	v=Visca()
 
-	v.cmd_adress_set()
-
-	v.cmd_if_clear_all()
-
 	CAM=1
+	# v.cmd_ptd_home(CAM)
+	# sleep(2)
+	# v.cmd_ptd_reset(CAM)
+	# sleep(4)
+
+#	v.cmd_adress_set()
+
+	# v.cmd_if_clear_all()
+
+
 
 #	v.cmd_cam_power_off(CAM)
+	# sleep(5)
+	# v.cmd_cam_power_on(CAM)
+	# sleep(2)
+	# v.cmd_cam_auto_power_off(CAM,0)
+	# sleep(2)
+	# v.cmd_datascreen_off(CAM)
+	# sleep(2)
+	v.cmd_ptd_home(CAM)
+#	sleep(3)
+#	v.cmd_ptd_abs(CAM,pp=-1440,tp=-360)
+#	sleep(3)
+###	sleep(3)
+#	v.cmd_ptd_abs(CAM,pp=1440,tp=360)
+#	sleep(3)
+#	v.cmd_cam_memory_set(CAM,1)
+#
+#	sleep(3)
+#	v.cmd_ptd_abs(CAM,pp=0,tp=0)
+#	sleep(3)
+#	v.cmd_cam_memory_set(CAM,2)
+#
+#	sleep(5)
+#	v.cmd_cam_memory_recall(CAM,0)
+#	sleep(3)
+#	v.cmd_cam_memory_recall(CAM,1)
+#	sleep(3)
+#	v.cmd_cam_memory_recall(CAM,2)
 
-	v.cmd_cam_power_on(CAM)
 
-	v.cmd_cam_auto_power_off(CAM,2)
-
-	v.cmd_datascreen_on(CAM)
-
-
-	sleep(3)
-	v.cmd_ptd_abs(CAM,pp=-1440,tp=-360)
-	sleep(3)
-	v.cmd_cam_memory_set(CAM,0)
-
-	sleep(3)
-	v.cmd_ptd_abs(CAM,pp=1440,tp=360)
-	sleep(3)
-	v.cmd_cam_memory_set(CAM,1)
-
-	sleep(3)
-	v.cmd_ptd_abs(CAM,pp=0,tp=0)
-	sleep(3)
-	v.cmd_cam_memory_set(CAM,2)
-
-	sleep(5)
-	v.cmd_cam_memory_recall(CAM,0)
-	sleep(3)
-	v.cmd_cam_memory_recall(CAM,1)
-	sleep(3)
-	v.cmd_cam_memory_recall(CAM,2)
-
+#	v.cmd_cam_shutter_reset(CAM)
+#	sleep(2)
 
 #	sleep(1)
 #	v.cmd_cam_zoom_tele(CAM)
 #	sleep(2)
 #	v.cmd_cam_zoom_stop(CAM)
 #	sleep(3)
-#
+
 #	v.cmd_cam_zoom_wide(CAM)
 #	sleep(7)
+#	v.cmd_cam_zoom_tele(CAM)
+#	sleep(7)
+#	v.cmd_cam_zoom_stop(CAM)
+#	sleep(3)
 
 #	v.cmd_cam_zoom_tele_speed(CAM,0)
 #	sleep(7)
@@ -144,15 +154,9 @@ def main():
 #
 #
 #	v.cmd_ptd_left(CAM)
-#	sleep(3)
-#	v.cmd_ptd_right(CAM,2)
-#	sleep(3)
-#	v.cmd_ptd_right(CAM)
-#	sleep(1)
-#	v.cmd_ptd_left(CAM)
 #	sleep(1)
 #	v.cmd_ptd_right(CAM)
-
+#	sleep(1)
 
 #	v.cmd_ptd_upleft(CAM)
 #	sleep(2)
@@ -166,9 +170,44 @@ def main():
 #	v.cmd_ptd_downright(CAM)
 #	sleep(2)
 #
-#	v.cmd_ptd_home(CAM)
-#	sleep(2)
-#	v.cmd_ptd_reset(CAM)
+
+	# sleep(4)
+	# v.cmd_ptd_abs(CAM,pp=600,tp=200)
+	# sleep(4)
+	# v.cmd_ptd_abs(CAM,pp=-600,tp=-200)
+	# sleep(4)
+
+	print ("************************************** starting move")
+	sleep(4)
+	
+	
+	
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(1)
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(1)
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(1)
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(1)
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(1)
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(1)
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(1)
+	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	sleep(4)
+
+	print ("************************************** finished move")
+
+
+
+
+
+	v.cmd_ptd_home(CAM)
+	sleep(2)
+	v.cmd_ptd_reset(CAM)
 
 	v.cmd_cam_power_off(CAM)
 
