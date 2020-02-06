@@ -177,32 +177,37 @@ def main():
 	# v.cmd_ptd_abs(CAM,pp=-600,tp=-200)
 	# sleep(4)
 
-	print ("************************************** starting move")
-	sleep(4)
+	# print ("************************************** starting move")
+	# sleep(4)
 	
 	
 	
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(1)
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(1)
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(1)
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(1)
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(1)
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(1)
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(1)
-	v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
-	sleep(4)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(1)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(1)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(1)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(1)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(1)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(1)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(1)
+	# v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=10,tp=0)
+	# sleep(4)
 
-	print ("************************************** finished move")
+	# print ("************************************** finished move")
 
 
 
+	while True:
+		v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=0,tp=50)
+		sleep(1)
+		v.cmd_ptd_rel(CAM,ts=10, ps=10, pp=0,tp=-50)
+		sleep(1)
 
 
 	v.cmd_ptd_home(CAM)

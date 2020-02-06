@@ -21,15 +21,19 @@
 """PyVisca by Florian Streibelt <pyvisca@f-streibelt.de>"""
 
 import serial,sys
-from thread import allocate_lock
+#from _thread import allocate_lock
+from threading import Thread, Lock
+import binascii
 
 class Visca():
 
-	def __init__(self,portname="/dev/ttyUSB0"):
+#	def __init__(self,portname="/dev/tty.usbserial-1420"):
+	def __init__(self,portname="/dev/tty.usbserial"):
 		self.serialport=None
-		self.mutex = allocate_lock()
+		self.mutex = Lock()
 		self.portname=portname
 		self.open_port()
+		print('[INFO]: port number is: %s ' % (self.portname))
 
 	def open_port(self):
 
@@ -43,7 +47,7 @@ class Visca():
 				print ("Exception opening serial port '%s' for display: %s\n" % (self.portname,e))
 				raise e
 				self.serialport = None
-
+		print('[INFO]: Port Open')
 		self.mutex.release()
 
 
@@ -64,78 +68,78 @@ class Visca():
 		else:
 			recipient_s=str(recipient)
 
-		print "-----"
+		print ("-----")
 
 		if title:
-			print "packet (%s) [%d => %s] len=%d: %s" % (title,sender,recipient_s,len(packet),packet.encode('hex'))
+			print ("packet (%s) [%d => %s] len=%d: %s" % (title,sender,recipient_s,len(packet),packet.encode('hex')))
 		else:
-			print "packet [%d => %s] len=%d: %s" % (sender,sender,recipient_s,len(packet),packet.encode('hex'))
+			print ("packet [%d => %s] len=%d: %s" % (sender,sender,recipient_s,len(packet),packet.encode('hex')))
 
-		print " QQ.........: %02x" % qq
+		print (" QQ.........: %02x" % qq)
 
 		if qq==0x01:
-			print "              (Command)"
+			print ("              (Command)")
 		if qq==0x09:
-			print "              (Inquiry)"
+			print ("              (Inquiry)")
 
 		if len(packet)>3:
 			rr=ord(packet[2])
-			print " RR.........: %02x" % rr
+			print (" RR.........: %02x" % rr)
 
 			if rr==0x00:
-				print "              (Interface)"
+				print ("              (Interface)")
 			if rr==0x04:
-				print "              (Camera [1])"
+				print ("              (Camera [1])")
 			if rr==0x06:
-				print "              (Pan/Tilter)"
+				print ("              (Pan/Tilter)")
 
 		if len(packet)>4:
 			data=packet[3:-1]
-			print " Data.......: %s" % data.encode('hex')
+			print (" Data.......: %s" % data.encode('hex'))
 		else:
-			print " Data.......: None"
+			print (" Data.......: None")
 
 		if not term==0xff:
-			print "ERROR: Packet not terminated correctly"
+			print ("ERROR: Packet not terminated correctly")
 			return
 
 		if len(packet)==3 and ((qq & 0b11110000)>>4)==4:
 			socketno = (qq & 0b1111)
-			print " packet: ACK for socket %02x" % socketno
+			print (" packet: ACK for socket %02x" % socketno)
 
 		if len(packet)==3 and ((qq & 0b11110000)>>4)==5:
 			socketno = (qq & 0b1111)
-			print " packet: COMPLETION for socket %02x" % socketno
+			print (" packet: COMPLETION for socket %02x" % socketno)
 
 		if len(packet)>3 and ((qq & 0b11110000)>>4)==5:
 			socketno = (qq & 0b1111)
 			ret=packet[2:-1].encode('hex')
-			print " packet: COMPLETION for socket %02x, data=%s" % (socketno,ret)
+			print (" packet: COMPLETION for socket %02x, data=%s" % (socketno,ret))
 
 		if len(packet)==4 and ((qq & 0b11110000)>>4)==6:
-			print " packet: ERROR!"
+			print (" packet: ERROR!")
 
 			socketno = (qq & 0b00001111)
 			errcode  = ord(packet[2])
 
 			#these two are special, socket is zero and has no meaning:
 			if errcode==0x02 and socketno==0:
-				print "        : Syntax Error"
+				print ("        : Syntax Error")
 			if errcode==0x03 and socketno==0:
-				print "        : Command Buffer Full"
+				print ("        : Command Buffer Full")
 
 
 			if errcode==0x04:
-				print "        : Socket %i: Command canceled" % socketno
+				print ("        : Socket %i: Command canceled" % socketno)
 
 			if errcode==0x05:
-				print "        : Socket %i: Invalid socket selected" % socketno
+				print ("        : Socket %i: Invalid socket selected" % socketno)
 
 			if errcode==0x41:
-				print "        : Socket %i: Command not executable" % socketno
+				print ("        : Socket %i: Command not executable" % socketno)
 
 		if len(packet)==3 and qq==0x38:
-			print "Network Change - we should immedeately issue a renumbering!"
+			print ("Network Change - we should immedeately issue a renumbering!")
 
 
 	def recv_packet(self,extra_title=None):
@@ -149,15 +153,15 @@ class Visca():
 				count+=1
 				packet=packet+chr(byte)
 			else:
-				print "ERROR: Timeout waiting for reply"
+				print ("ERROR: Timeout waiting for reply")
 				break
 			if byte==0xff:
 				break
 
-		if extra_title:
-			self.dump(packet,"recv: %s" % extra_title)
-		else:
-			self.dump(packet,"recv")
+		# if extra_title:
+		# 	self.dump(packet,"recv: %s" % extra_title)
+		# else:
+		# 	self.dump(packet,"recv")
 		return packet
 
 
@@ -171,8 +175,10 @@ class Visca():
 		if self.serialport.inWaiting():
 			self.recv_packet("ignored")
 
+		#packet = packet.encode('utf-8')
+
 		self.serialport.write(packet)
-		self.dump(packet,"sent")
+	#	self.dump(packet,"sent")
 
 
 
@@ -215,16 +221,18 @@ class Visca():
 		terminator=0xff
 
 		packet = chr(header)+data+chr(terminator)
-
 		self.mutex.acquire()
 
 		self._write_packet(packet)
 
 		reply = self.recv_packet()
-
-
+		# x = packet.encode("utf-8").hex()
+		# y = reply.encode("utf-8").hex()
+		# print (x)
+		# print (y)
 		if reply[-1:] != '\xff':
-			print "received packet not terminated correctly: %s" % reply.encode('hex')
+			print ("Received packet not terminated correctly: %s" % reply.encode("utf-8").hex())
+			print(reply)
 			reply=None
 
 		self.mutex.release()
@@ -267,19 +275,19 @@ class Visca():
 		reply = self.send_broadcast('\x30'+chr(first)) # set address
 
 		if not reply:
-			print "No reply from the bus."
+			print ("No reply from the bus.")
 			sys.exit(1)
 
 		if len(reply)!=4 or reply[-1:]!='\xff':
-			print "ERROR enumerating devices"
+			print ("ERROR enumerating devices")
 			sys.exit(1)
 		if reply[0] != '\x88':
-			print "ERROR: expecting broadcast answer to an enumeration request"
+			print ("ERROR: expecting broadcast answer to an enumeration request")
 			sys.exit(1)
 		address = ord(reply[2])
 
 		d=address-first
-		print "debug: found %i devices on the bus" % d
+		print ("debug: found %i devices on the bus" % d)
 
 		if d==0:
 			sys.exit(1)
@@ -288,10 +296,10 @@ class Visca():
 	def cmd_if_clear_all(self):
 		reply=self.send_broadcast( '\x01\x00\x01') # interface clear all
 		if not reply[1:]=='\x01\x00\x01\xff':
-			print "ERROR clearing all interfaces on the bus!"
+			print ("ERROR clearing all interfaces on the bus!")
 			sys.exit(1)
 
-		print "debug: all interfaces clear"
+		print ("debug: all interfaces clear")
 
 
 	def cmd_cam(self,device,subcmd):
@@ -401,7 +409,21 @@ class Visca():
 #FIXME: CAM_?GAIN
 #FIXME: CAM_AE
 #FIXME: CAM_SlowShutter
-#FIXME: CAM_Shutter
+	
+	#FIXME: CAM_Shutter
+	def cmd_cam_shutter(self,device,mode):
+		subcmd="\x0A"+chr(mode)
+		return self.cmd_cam(device,subcmd)
+
+	def cmd_cam_shutter_reset(self,device):
+		return self.cmd_cam_shutter(device,0x00)
+
+	def cmd_cam_shutter_up(self,device):
+		return self.cmd_cam_shutter(device,0x02)
+
+	def cmd_cam_shutter_down(self,device):
+		return self.cmd_cam_shutter(device,0x03)
+
 #FIXME: CAM_Iris
 #FIXME: CAM_Gain
 #FIXME: CAM_Bright
@@ -515,7 +537,7 @@ class Visca():
 			num=5
 		if func<0 or func>2:
 			return
-		print "DEBUG: cam_memory command"
+		print ("DEBUG: cam_memory command")
 		subcmd="\x3f"+chr(func)+chr( 0b0111 & num)
 		return self.cmd_cam(device,subcmd)
 
@@ -590,7 +612,7 @@ class Visca():
 
 	def cmd_ptd_abs(self,device,ts=0x14,ps=0x18,pp=0,tp=0):
 
-		print "DEBUG: ABS POS TO %d/%d" % (pp,tp)
+		print ("DEBUG: ABS POS TO %d/%d" % (pp,tp))
 
 		# pp: range: -1440 - 1440
 		if pp<0:
@@ -605,6 +627,26 @@ class Visca():
 			t=tp
 
 		subcmd='\x02'+chr(ts)+chr(ps)+self.i2v(p)+self.i2v(t)
+		return self.cmd_pt(device,subcmd)
+
+
+	def cmd_ptd_rel(self,device,ts=0x14,ps=0x18,pp=0,tp=0):
+
+	#	print ("DEBUG: REL POS %d/%d" % (pp,tp))
+
+		# pp: range: -1440 - 1440
+		if pp<0:
+			p=(((pp*-1)-1)^0xffff)
+		else:
+			p=pp
+
+		#tp: range -360 - 360
+		if tp<0:
+			t=(((tp*-1)-1)^0xffff)
+		else:
+			t=tp
+
+		subcmd='\x03'+chr(ts)+chr(ps)+self.i2v(p)+self.i2v(t)
 		return self.cmd_pt(device,subcmd)
 
 

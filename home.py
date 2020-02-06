@@ -3,15 +3,21 @@ def main():
 	from  time import sleep
 	v=Visca()
 
-	CAM=1
-	v.cmd_ptd_home(CAM)
-	sleep(2)
-	v.cmd_adress_set()
 
+	print ("1")
+	CAM=1
+
+	# v.cmd_ptd_reset(CAM)
+	# sleep(7)
+	# v.cmd_ptd_home(CAM)
+	# sleep(2)
+	print ("2")
+	v.cmd_adress_set()
+	print ("3")
 	v.cmd_if_clear_all()
 	CAM=1
-        sleep(1)
-        v.cmd_ptd_reset(CAM)
+	sleep(1)
+	v.cmd_ptd_reset(CAM)
 	sleep(7)
 	v.cmd_cam_power_on(CAM)
 	sleep(2)
