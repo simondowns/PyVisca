@@ -18,12 +18,7 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301
 #    USA
 
-"""PyVisca by Florian Streibelt <pyvisca@f-streibelt.de>"""
-
-#
-# This is used for testing the functionality while developing,
-# expect spaghetti code...
-#
+"""Adapted from PyVisca by Florian Streibelt <pyvisca@f-streibelt.de>"""
 
 import subprocess as sp
 import socket
@@ -37,10 +32,11 @@ class CAM_position():
 		self.ts = 10
 		self.pp = 0
 		self.tp = 0
+		self.zoom = 0
 		print('[INFO]: CAM Relative Position Class Initialised')
 
 	def update_pos(self):
-		return self.ps, self.ts, self.pp, self.tp
+		return self.ps, self.ts, self.pp, self.tp, self.zoom
 
 def main():
 	from pyviscalib.visca import Visca
@@ -62,32 +58,20 @@ def main():
 
 
 		data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-		# print ("received message:", data)
+		# Debug for UDP transmission
+		#print ("received message: ", data)
 
-		
-
-		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp) = data.split(' ') 
-		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp) = (int(new_position.CAM), int(new_position.ps), int(new_position.ts), int(new_position.pp), int(new_position.tp))
+		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = data.split(' ') 
+		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = (int(new_position.CAM), int(new_position.ps), int(new_position.ts), int(new_position.pp), int(new_position.tp), int(new_position.zoom))
 		#print(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
 		v.cmd_ptd_rel(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
-
-		# raw_pos = pospipe.stdout.read()
-
-		# # new_position = pospipe.stdout.read(CAM_POS)
-
-		# # v.cmd_ptd_rel(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
-
-		key = cv.waitKey(1) & 0xFF
+		v.cmd_cam_zoom_direct(CAM,new_position.zoom)
+		# key = cv.waitKey(1) & 0xFF
 	
-		# if the `q` key was pressed, break from the loop
-		if key == ord("q"):
-			break
+		# # if the `q` key was pressed, break from the loop
+		# if key == ord("q"):
+		# 	break
 
-	# v.cmd_ptd_home(CAM)
-	# sleep(2)
-	# v.cmd_ptd_reset(CAM)
-
-	# v.cmd_cam_power_off(CAM)
 
 if __name__ == '__main__':
     try:
