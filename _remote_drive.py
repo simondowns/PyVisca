@@ -52,20 +52,34 @@ def main():
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 	sock.bind((UDP_IP, UDP_PORT))
 
-
-
+	zoomratio = 0
+	zoomstatus = 0
+	targetzoom = 0
 	while True:
 
 
 		data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
 		# Debug for UDP transmission
-		#print ("received message: ", data)
+		# print ("received message: ", data + ' ' + str(zoomratio))
 
 		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = data.split(' ') 
 		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = (int(new_position.CAM), int(new_position.ps), int(new_position.ts), int(new_position.pp), int(new_position.tp), int(new_position.zoom))
 		#print(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
 		v.cmd_ptd_rel(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
-		v.cmd_cam_zoom_direct(CAM,new_position.zoom)
+		
+		
+		# new_position.zoom = new_position.zoom/255
+		
+
+		# # new_position.zoom = new_position.zoom.encode('hex')
+		# targetzoom = bin(new_position.zoom)
+		# # print(targetzoom)
+		# zoomstatus = v.cmd_inq_zoom(CAM)
+		# zoomstatus = zoomstatus.encode('hex')
+		# print('Input: ', new_position.zoom, 'Target: ', targetzoom, 'Status: ', zoomstatus)
+		# #zoomratio = int(new_position.zoom * (4000/255))
+		
+		# v.cmd_cam_zoom_direct(CAM,new_position.zoom)
 		# key = cv.waitKey(1) & 0xFF
 	
 		# # if the `q` key was pressed, break from the loop

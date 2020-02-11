@@ -316,10 +316,6 @@ class Visca():
 
 		return reply
 
-
-
-
-
 	# POWER control
 
 	def cmd_cam_power(self,device,onoff):
@@ -348,6 +344,15 @@ class Visca():
 
 
 	# ZOOM control
+
+
+	# What is current state of zoom
+	def cmd_inq_zoom(self,device):
+		packet='\x09\x04\x47'
+		reply = self.send_packet(device,packet)
+		#FIXME: check returned data here and retransmit?
+		#self.dump(reply,"ZoomStatus")
+		return reply
 
 	def cmd_cam_zoom_stop(self,device):
 		subcmd="\x07\x00"
@@ -384,7 +389,9 @@ class Visca():
 		optical: 0..4000
 		digital: 4000..7000 (1x - 4x)
 		"""
+		#zoom = zoom.encode('hex')
 		subcmd="\x47"+self.i2v(zoom)
+		#self.cmd_cam(device,subcmd)
 		return self.cmd_cam(device,subcmd)
 
 	#Digital Zoom control on/off
