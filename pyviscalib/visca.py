@@ -43,10 +43,15 @@ class Visca():
 			try:
 				self.serialport = serial.Serial(self.portname,9600,timeout=2,stopbits=1,bytesize=8,rtscts=False, dsrdtr=False)
 				self.serialport.flushInput()
-			except Exception as e:
-				print ("Exception opening serial port '%s' for display: %s\n" % (self.portname,e))
-				raise e
-				self.serialport = None
+			except Exception:
+				try: 
+					self.portname ="/dev/tty.usbserial-1420"
+					self.serialport = serial.Serial(self.portname,9600,timeout=2,stopbits=1,bytesize=8,rtscts=False, dsrdtr=False)
+					self.serialport.flushInput()
+				except Exception as e:
+					print ("Exception opening serial port '%s' for display: %s\n" % (self.portname,e))
+					raise e
+					self.serialport = None
 		print('[INFO]: Port Open')
 		self.mutex.release()
 
@@ -231,7 +236,7 @@ class Visca():
 		# print (x)
 		# print (y)
 		if reply[-1:] != '\xff':
-			print ("Received packet not terminated correctly: %s" % reply.encode("utf-8").hex())
+			print ("Received packet not terminated correctly: %s" % reply.encode("utf-8"))
 			print(reply)
 			reply=None
 

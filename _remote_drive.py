@@ -52,45 +52,42 @@ def main():
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 	sock.bind((UDP_IP, UDP_PORT))
 
-	zoomratio = 0
-	zoomstatus = 0
-	targetzoom = 0
+	data, addr = sock.recvfrom(1024) # initial data for compare
+	v.cmd_ptd_home(CAM)
+	
 	while True:
 
 
-		data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
-		# Debug for UDP transmission
-		# print ("received message: ", data + ' ' + str(zoomratio))
+		newdata, addr = sock.recvfrom(1024) # buffer size is 1024 bytes
 
-		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = data.split(' ') 
-		(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = (int(new_position.CAM), int(new_position.ps), int(new_position.ts), int(new_position.pp), int(new_position.tp), int(new_position.zoom))
-		#print(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
-		v.cmd_ptd_rel(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
-		
-		
-		# new_position.zoom = new_position.zoom/255
-		
+		if newdata != data:
+			
+			v.cmd_ptd_stop(CAM)
+			(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = data.split(' ') 
+			(new_position.CAM, new_position.ps, new_position.ts, new_position.pp, new_position.tp, new_position.zoom) = (int(new_position.CAM), int(new_position.ps), int(new_position.ts), int(new_position.pp), int(new_position.tp), int(new_position.zoom))
+			v.cmd_ptd_rel(new_position.CAM,new_position.ps,new_position.ts,new_position.pp,new_position.tp)
+			
+			# zoom based on value passed, it should be a short period, like a button
+			if (new_position.zoom == 0):
+				v.cmd_cam_zoom_wide(CAM)
+			if (new_position.zoom == 2):
+				v.cmd_cam_zoom_tele(CAM)
+			if (new_position.zoom == 1):
+				v.cmd_cam_zoom_stop(CAM)
 
-		# # new_position.zoom = new_position.zoom.encode('hex')
-		# targetzoom = bin(new_position.zoom)
-		# # print(targetzoom)
-		# zoomstatus = v.cmd_inq_zoom(CAM)
-		# zoomstatus = zoomstatus.encode('hex')
-		# print('Input: ', new_position.zoom, 'Target: ', targetzoom, 'Status: ', zoomstatus)
-		# #zoomratio = int(new_position.zoom * (4000/255))
-		
-		# v.cmd_cam_zoom_direct(CAM,new_position.zoom)
-		# key = cv.waitKey(1) & 0xFF
+		# else:	
+		# 	print('same')
+
+
+		data = newdata
+
+		key = cv.waitKey(1) & 0xFF
 	
-		# # if the `q` key was pressed, break from the loop
-		# if key == ord("q"):
-		# 	break
+		# if the `q` key was pressed, break from the loop
+		if key == ord("q"):
+			break
 
 
 if __name__ == '__main__':
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass
-
-
+	while True:
+		main()
